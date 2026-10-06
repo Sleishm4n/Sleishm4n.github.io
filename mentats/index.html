@@ -109,9 +109,21 @@
     <section id="results">
       <h2><span class="num">03</span> Model results <span class="badge" data-src="models"></span></h2>
       <div class="model-cards" id="model-cards"></div>
+
+      <!-- Classification -->
+      <h3 class="subsection-title">// Classification Models (MNIST)</h3>
       <div class="grid-2">
-        <div class="chart-card"><h3>Training loss</h3><canvas id="chart-loss"></canvas></div>
+        <div class="chart-card"><h3>Cross-entropy loss</h3><canvas id="chart-loss"></canvas></div>
         <div class="chart-card"><h3>Train accuracy (%)</h3><canvas id="chart-acc"></canvas></div>
+      </div>
+
+      <!-- Generative (CVAE) -->
+      <div id="generative-section" style="display: none;">
+        <h3 class="subsection-title">// Generative Model Dynamics (Batched CNN CVAE)</h3>
+        <div class="grid-2">
+          <div class="chart-card"><h3>Reconstruction loss (BCE)</h3><canvas id="chart-cvae-recon"></canvas></div>
+          <div class="chart-card"><h3>KL divergence & beta annealing</h3><canvas id="chart-cvae-kl"></canvas></div>
+        </div>
       </div>
     </section>
 

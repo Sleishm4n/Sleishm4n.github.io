@@ -77,30 +77,142 @@ function renderHero({ models, stats, kernels }) {
 function renderModels({ models }) {
   if (!models) return;
   const cards = $("#model-cards");
+
+  const classifiers = models.models.filter((m) => m.task === "classification" || m.test_accuracy != null);
+  const generative = models.models.filter((m) => m.task === "generative" || (m.task !== "classification" && m.test_accuracy == null));
+
   models.models.forEach((m) => {
+    let mainMetricHtml = "";
+    let metaHtml = "";
+
+    if (m.task === "generative" || m.test_accuracy == null) {
+      const last = m.epochs[m.epochs.length - 1];
+      const recon = last?.recon_loss != null ? last.recon_loss.toFixed(4) : (last?.loss != null ? last.loss.toFixed(4) : "–");
+      const kl = last?.kl_loss != null ? ` · KL: ${last.kl_loss.toFixed(4)}` : "";
+      mainMetricHtml = `<div class="acc">${recon} <span style="font-size:1.1rem;color:var(--muted);font-weight:normal;">BCE</span></div>`;
+      metaHtml = `<div class="meta">${m.dataset} reconstruction loss${kl} · ${m.epochs.length} epochs · ${m.optimiser}</div>`;
+    } else {
+      mainMetricHtml = `<div class="acc">${m.test_accuracy.toFixed(2)}%</div>`;
+      metaHtml = `<div class="meta">${m.dataset} test accuracy · ${m.epochs.length} epochs · ${m.optimiser}</div>`;
+    }
+
     cards.append(
       el("div", { class: "model-card" },
         `<h3>${m.name}</h3>
-         <div class="acc">${m.test_accuracy != null ? m.test_accuracy.toFixed(2) + "%" : "n/a"}</div>
-         <div class="meta">${m.dataset} test accuracy · ${m.epochs.length} epochs · ${m.optimiser}</div>
+         ${mainMetricHtml}
+         ${metaHtml}
          <code>${m.architecture}</code>`)
     );
   });
 
   if (typeof Chart === "undefined") return;
   const colors = palette();
-  const maxEpochs = Math.max(...models.models.map((m) => m.epochs.length));
-  const labels = Array.from({ length: maxEpochs }, (_, i) => `epoch ${i}`);
-  const ds = (key) =>
-    models.models.map((m, i) => ({
-      label: m.name,
-      data: m.epochs.map((e) => e[key]),
-      borderColor: colors[i % colors.length],
-      backgroundColor: colors[i % colors.length],
-      tension: 0.3,
-    }));
-  new Chart($("#chart-loss"), { type: "line", data: { labels, datasets: ds("loss") } });
-  new Chart($("#chart-acc"), { type: "line", data: { labels, datasets: ds("train_accuracy") } });
+
+  // 1. Classification charts (only classifiers)
+  if (classifiers.length > 0) {
+    const classEpochs = Math.max(...classifiers.map((m) => m.epochs.length));
+    const classLabels = Array.from({ length: classEpochs }, (_, i) => `epoch ${i}`);
+    const dsClass = (key) =>
+      classifiers.map((m, i) => ({
+        label: m.name,
+        data: m.epochs.map((e) => e[key]),
+        borderColor: colors[i % colors.length],
+        backgroundColor: colors[i % colors.length],
+        tension: 0.3,
+      }));
+
+    new Chart($("#chart-loss"), {
+      type: "line",
+      data: { labels: classLabels, datasets: dsClass("loss") },
+      options: {
+        interaction: { mode: "index", intersect: false },
+        scales: { y: { beginAtZero: false, title: { display: true, text: "Cross-Entropy Loss" } } },
+      },
+    });
+
+    new Chart($("#chart-acc"), {
+      type: "line",
+      data: { labels: classLabels, datasets: dsClass("train_accuracy") },
+      options: {
+        interaction: { mode: "index", intersect: false },
+        scales: { y: { title: { display: true, text: "Train Accuracy (%)" } } },
+      },
+    });
+  }
+
+  // 2. Generative charts (CVAE training dynamics)
+  if (generative.length > 0) {
+    const cvaeSec = $("#generative-section");
+    if (cvaeSec) cvaeSec.style.display = "block";
+
+    const cvae = generative[0];
+    const cvaeLabels = cvae.epochs.map((e) => `epoch ${e.epoch}`);
+
+    // Reconstruction loss curve
+    new Chart($("#chart-cvae-recon"), {
+      type: "line",
+      data: {
+        labels: cvaeLabels,
+        datasets: [{
+          label: "Reconstruction Loss (BCE)",
+          data: cvae.epochs.map((e) => e.recon_loss ?? e.loss),
+          borderColor: css("--accent"),
+          backgroundColor: css("--accent"),
+          tension: 0.3,
+        }],
+      },
+      options: {
+        interaction: { mode: "index", intersect: false },
+        scales: { y: { title: { display: true, text: "BCE Loss" } } },
+      },
+    });
+
+    // KL divergence & beta annealing curve (Dual Axis)
+    new Chart($("#chart-cvae-kl"), {
+      type: "line",
+      data: {
+        labels: cvaeLabels,
+        datasets: [
+          {
+            label: "KL Divergence (nats)",
+            data: cvae.epochs.map((e) => e.kl_loss ?? 0),
+            borderColor: "#8fb8de",
+            backgroundColor: "#8fb8de",
+            tension: 0.3,
+            yAxisID: "yKL",
+          },
+          {
+            label: "Beta Annealing",
+            data: cvae.epochs.map((e) => e.beta ?? null),
+            borderColor: "#f2b45a",
+            backgroundColor: "#f2b45a",
+            borderDash: [5, 5],
+            tension: 0.1,
+            yAxisID: "yBeta",
+          },
+        ],
+      },
+      options: {
+        interaction: { mode: "index", intersect: false },
+        scales: {
+          yKL: {
+            type: "linear",
+            position: "left",
+            title: { display: true, text: "KL Divergence (nats)", color: "#8fb8de" },
+            ticks: { color: "#8fb8de" },
+          },
+          yBeta: {
+            type: "linear",
+            position: "right",
+            title: { display: true, text: "Beta Annealing", color: "#f2b45a" },
+            ticks: { color: "#f2b45a" },
+            min: 0,
+            grid: { drawOnChartArea: false },
+          },
+        },
+      },
+    });
+  }
 }
 
 // ---------- Kernels ----------

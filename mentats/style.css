@@ -131,6 +131,16 @@ figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
 .model-card .meta { color: var(--muted); font-size: 0.85rem; }
 .model-card code { display: block; margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
 
+.subsection-title {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin: 1.75rem 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
 /* Badge for placeholder data */
 .badge:empty { display: none; }
 .badge {

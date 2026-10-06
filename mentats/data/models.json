@@ -1,6 +1,6 @@
 {
   "placeholder": false,
-  "source": "Collected 2 metrics files from mentats/outputs",
+  "source": "Collected 3 metrics files from mentats/outputs",
   "models": [
     {
       "id": "mnist",
@@ -83,6 +83,153 @@
           "loss": 0.05,
           "train_accuracy": 98.59,
           "elapsed_s": 101.58
+        }
+      ]
+    },
+    {
+      "id": "batched_cnn_cvae",
+      "name": "Batched CNN CVAE",
+      "dataset": "MNIST",
+      "task": "generative",
+      "architecture": "ConvEncoder -> DenseLatentHead(10) -> ConvDecoder",
+      "optimiser": "Adam (lr 0.001)",
+      "initial_loss": null,
+      "test_accuracy": null,
+      "epochs": [
+        {
+          "epoch": 0,
+          "loss": 0.1955,
+          "train_accuracy": null,
+          "elapsed_s": 245.43,
+          "recon_loss": 0.192,
+          "kl_loss": 2.0243,
+          "beta": 0.02
+        },
+        {
+          "epoch": 1,
+          "loss": 0.1665,
+          "train_accuracy": null,
+          "elapsed_s": 241.74,
+          "recon_loss": 0.1643,
+          "kl_loss": 0.0764,
+          "beta": 0.04
+        },
+        {
+          "epoch": 2,
+          "loss": 0.1646,
+          "train_accuracy": null,
+          "elapsed_s": 244.06,
+          "recon_loss": 0.1627,
+          "kl_loss": 0.0378,
+          "beta": 0.06
+        },
+        {
+          "epoch": 3,
+          "loss": 0.164,
+          "train_accuracy": null,
+          "elapsed_s": 246.75,
+          "recon_loss": 0.1623,
+          "kl_loss": 0.0254,
+          "beta": 0.08
+        },
+        {
+          "epoch": 4,
+          "loss": 0.1639,
+          "train_accuracy": null,
+          "elapsed_s": 244.66,
+          "recon_loss": 0.1623,
+          "kl_loss": 0.0184,
+          "beta": 0.1
+        },
+        {
+          "epoch": 5,
+          "loss": 0.1637,
+          "train_accuracy": null,
+          "elapsed_s": 245.48,
+          "recon_loss": 0.162,
+          "kl_loss": 0.0165,
+          "beta": 0.1
+        },
+        {
+          "epoch": 6,
+          "loss": 0.1622,
+          "train_accuracy": null,
+          "elapsed_s": 245.66,
+          "recon_loss": 0.1605,
+          "kl_loss": 0.0169,
+          "beta": 0.1
+        },
+        {
+          "epoch": 7,
+          "loss": 0.1626,
+          "train_accuracy": null,
+          "elapsed_s": 245.3,
+          "recon_loss": 0.1608,
+          "kl_loss": 0.0181,
+          "beta": 0.1
+        },
+        {
+          "epoch": 8,
+          "loss": 0.1614,
+          "train_accuracy": null,
+          "elapsed_s": 245.0,
+          "recon_loss": 0.1599,
+          "kl_loss": 0.0159,
+          "beta": 0.1
+        },
+        {
+          "epoch": 9,
+          "loss": 0.1608,
+          "train_accuracy": null,
+          "elapsed_s": 248.89,
+          "recon_loss": 0.1592,
+          "kl_loss": 0.0163,
+          "beta": 0.1
+        },
+        {
+          "epoch": 10,
+          "loss": 0.1603,
+          "train_accuracy": null,
+          "elapsed_s": 251.82,
+          "recon_loss": 0.1587,
+          "kl_loss": 0.0159,
+          "beta": 0.1
+        },
+        {
+          "epoch": 11,
+          "loss": 0.1606,
+          "train_accuracy": null,
+          "elapsed_s": 243.02,
+          "recon_loss": 0.159,
+          "kl_loss": 0.0162,
+          "beta": 0.1
+        },
+        {
+          "epoch": 12,
+          "loss": 0.1601,
+          "train_accuracy": null,
+          "elapsed_s": 244.34,
+          "recon_loss": 0.1585,
+          "kl_loss": 0.0165,
+          "beta": 0.1
+        },
+        {
+          "epoch": 13,
+          "loss": 0.1598,
+          "train_accuracy": null,
+          "elapsed_s": 243.72,
+          "recon_loss": 0.1581,
+          "kl_loss": 0.0175,
+          "beta": 0.1
+        },
+        {
+          "epoch": 14,
+          "loss": 0.1594,
+          "train_accuracy": null,
+          "elapsed_s": 243.89,
+          "recon_loss": 0.1578,
+          "kl_loss": 0.0165,
+          "beta": 0.1
         }
       ]
     }
