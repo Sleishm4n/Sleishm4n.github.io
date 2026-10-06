@@ -1,12 +1,66 @@
 {
-  "placeholder": true,
-  "reference": { "framework": "PyTorch (CPU)", "version": "TBD", "threads": 1 },
+  "placeholder": false,
+  "reference": {
+    "framework": "PyTorch (CPU)",
+    "version": "2.14.1+cpu",
+    "threads": 1
+  },
   "kernels": [
-    { "id": "matmul/256",      "label": "matmul 256×256", "mentats_ns": 7500000,   "reference_ns": 600000 },
-    { "id": "conv2d/enc2_fwd", "label": "conv2d enc2 fwd", "mentats_ns": 21000000, "reference_ns": 4000000 },
-    { "id": "train_step/batched_cnn_cvae", "label": "CVAE train step", "mentats_ns": 250000000, "reference_ns": 60000000 }
+    {
+      "id": "matmul/64",
+      "label": "matmul 64x64",
+      "reference_ns": 9900.0,
+      "mentats_ns": 39743.8
+    },
+    {
+      "id": "matmul/128",
+      "label": "matmul 128x128",
+      "reference_ns": 117600.0,
+      "mentats_ns": 113144.43
+    },
+    {
+      "id": "matmul/256",
+      "label": "matmul 256x256",
+      "reference_ns": 355900.0,
+      "mentats_ns": 501338.66
+    },
+    {
+      "id": "matmul/512",
+      "label": "matmul 512x512",
+      "reference_ns": 3193250.0,
+      "mentats_ns": 3141202.94
+    },
+    {
+      "id": "conv2d/conv_forward_batch64",
+      "label": "conv2d forward (batch 64)",
+      "reference_ns": 1212350.0,
+      "mentats_ns": 7782135.71
+    },
+    {
+      "id": "conv2d/conv_backward_batch64",
+      "label": "conv2d backward (batch 64)",
+      "reference_ns": 6031850.0,
+      "mentats_ns": 32978225.0
+    },
+    {
+      "id": "conv2d/single_28x28",
+      "label": "conv2d single image (28x28)",
+      "reference_ns": 18100.0,
+      "mentats_ns": 58080.5
+    }
   ],
   "models": [
-    { "id": "cnn_mnist", "label": "CNN classifier (MNIST)", "mentats": { "test_accuracy": 97.69, "epoch_s": 133.1 }, "reference": { "test_accuracy": null, "epoch_s": null } }
+    {
+      "id": "cnn_mnist",
+      "label": "CNN classifier (MNIST)",
+      "mentats": {
+        "test_accuracy": 97.69,
+        "epoch_s": 133.1
+      },
+      "reference": {
+        "test_accuracy": 98.2,
+        "epoch_s": 45.0
+      }
+    }
   ]
 }

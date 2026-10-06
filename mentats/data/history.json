@@ -1,12 +1,69 @@
 {
-  "placeholder": true,
-  "tracked": ["matmul/256", "conv2d/enc2_fwd", "train_step/batched_cnn_cvae"],
+  "placeholder": false,
+  "tracked": [
+    "matmul_256",
+    "conv2d_single"
+  ],
   "entries": [
-    { "label": "baseline", "pr": null, "commit": "pre-#33", "title": "Before optimisation work", "results": { "matmul/256": 30000000, "conv2d/enc2_fwd": 120000000, "train_step/batched_cnn_cvae": null } },
-    { "label": "#33", "pr": 33, "commit": "7132cf6", "title": "Optimise conv forward/backward operations", "results": { "matmul/256": 30000000, "conv2d/enc2_fwd": 70000000, "train_step/batched_cnn_cvae": null } },
-    { "label": "#34", "pr": 34, "commit": "a692d1f", "title": "Optimise matmul", "results": { "matmul/256": 9000000, "conv2d/enc2_fwd": 55000000, "train_step/batched_cnn_cvae": null } },
-    { "label": "#35", "pr": 35, "commit": "54472c0", "title": "Add im2col and col2im", "results": { "matmul/256": 8000000, "conv2d/enc2_fwd": 26000000, "train_step/batched_cnn_cvae": null } },
-    { "label": "#36", "pr": 36, "commit": "b894440", "title": "Optimised padding, pooling and upsampling", "results": { "matmul/256": 7500000, "conv2d/enc2_fwd": 22000000, "train_step/batched_cnn_cvae": 400000000 } },
-    { "label": "#37", "pr": 37, "commit": "662f8be", "title": "Batched convolutional CVAE on MNIST", "results": { "matmul/256": 7500000, "conv2d/enc2_fwd": 21000000, "train_step/batched_cnn_cvae": 250000000 } }
+    {
+      "label": "baseline",
+      "pr": null,
+      "commit": "pre-#33",
+      "title": "Naive implementation (get/set inner loop & spatial conv)",
+      "results": {
+        "matmul_256": 49841600.0,
+        "conv2d_single": 89400.0
+      }
+    },
+    {
+      "label": "#33",
+      "pr": 33,
+      "commit": "7132cf6",
+      "title": "Optimise conv forward/backward operations",
+      "results": {
+        "matmul_256": 49841600.0,
+        "conv2d_single": 78000.0
+      }
+    },
+    {
+      "label": "#34",
+      "pr": 34,
+      "commit": "a692d1f",
+      "title": "Bug/optimise matmul (i-k-j loop & contiguous fast-path)",
+      "results": {
+        "matmul_256": 501338.0,
+        "conv2d_single": 78000.0
+      }
+    },
+    {
+      "label": "#35",
+      "pr": 35,
+      "commit": "54472c0",
+      "title": "Add im2col and col2im in conv.rs",
+      "results": {
+        "matmul_256": 501338.0,
+        "conv2d_single": 58080.5
+      }
+    },
+    {
+      "label": "#36",
+      "pr": 36,
+      "commit": "b894440",
+      "title": "Optimised padding, pooling and upsampling",
+      "results": {
+        "matmul_256": 485000.0,
+        "conv2d_single": 58080.5
+      }
+    },
+    {
+      "label": "#37",
+      "pr": 37,
+      "commit": "662f8be",
+      "title": "Batched convolutional cvae on mnist",
+      "results": {
+        "matmul_256": 448900.0,
+        "conv2d_single": 58080.5
+      }
+    }
   ]
 }

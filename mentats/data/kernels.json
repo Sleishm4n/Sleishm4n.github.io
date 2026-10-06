@@ -1,6 +1,6 @@
 {
   "placeholder": false,
-  "generated_at": "2026-10-06 18:35",
+  "generated_at": "2026-10-06 19:14",
   "hardware": {
     "cpu": "Intel(R) Core(TM) Ultra 7 155H",
     "os": "Windows 11",
@@ -12,28 +12,70 @@
       "id": "conv2d/conv_backward_batch64",
       "group": "conv2d",
       "label": "conv_backward_batch64",
-      "median_ns": 31225700.0,
+      "median_ns": 32978225.0,
       "flops": null
     },
     {
       "id": "conv2d/conv_forward_batch64",
       "group": "conv2d",
       "label": "conv_forward_batch64",
-      "median_ns": 7654621.43,
+      "median_ns": 7782135.71,
+      "flops": null
+    },
+    {
+      "id": "conv2d_comparison/im2col_gemm_single",
+      "group": "conv2d_comparison",
+      "label": "im2col_gemm_single",
+      "median_ns": 58080.5,
+      "flops": null
+    },
+    {
+      "id": "conv2d_comparison/naive_generic_single",
+      "group": "conv2d_comparison",
+      "label": "naive_generic_single",
+      "median_ns": 89423.38,
       "flops": null
     },
     {
       "id": "matmul_comparison/256x256_naive",
       "group": "matmul_comparison",
       "label": "256x256_naive",
-      "median_ns": 50941600.0,
+      "median_ns": 49839250.0,
       "flops": 33554432
     },
     {
       "id": "matmul_comparison/256x256_optimised",
       "group": "matmul_comparison",
       "label": "256x256_optimised",
-      "median_ns": 522311.67,
+      "median_ns": 501338.66,
+      "flops": 33554432
+    },
+    {
+      "id": "matmul_varing_sizes/128x128_optimised",
+      "group": "matmul_varing_sizes",
+      "label": "128x128_optimised",
+      "median_ns": 113144.43,
+      "flops": 4194304
+    },
+    {
+      "id": "matmul_varing_sizes/512x512_optimised",
+      "group": "matmul_varing_sizes",
+      "label": "512x512_optimised",
+      "median_ns": 3141202.94,
+      "flops": 268435456
+    },
+    {
+      "id": "matmul_varing_sizes/64x64_optimised",
+      "group": "matmul_varing_sizes",
+      "label": "64x64_optimised",
+      "median_ns": 39743.8,
+      "flops": 524288
+    },
+    {
+      "id": "tensor_multiplication/matmul_256x256",
+      "group": "tensor_multiplication",
+      "label": "matmul_256x256",
+      "median_ns": 448881.78,
       "flops": 33554432
     }
   ]
