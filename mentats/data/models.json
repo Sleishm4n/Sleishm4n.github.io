@@ -1,0 +1,40 @@
+{
+  "placeholder": false,
+  "source": "Seeded from mentats README tables (to be replaced by tools/mentats/collect_metrics.py)",
+  "models": [
+    {
+      "id": "cnn_mnist",
+      "name": "CNN classifier",
+      "dataset": "MNIST",
+      "task": "classification",
+      "architecture": "Conv2D(1→8, 3x3) → ReLU → MaxPool → Linear(1352→10)",
+      "optimiser": "SGD",
+      "initial_loss": 1.7083912,
+      "test_accuracy": 97.69,
+      "epochs": [
+        { "epoch": 0, "loss": 0.1477, "train_accuracy": 95.70, "elapsed_s": 116.17 },
+        { "epoch": 1, "loss": 0.0758, "train_accuracy": 97.79, "elapsed_s": 132.80 },
+        { "epoch": 2, "loss": 0.0631, "train_accuracy": 98.19, "elapsed_s": 135.28 },
+        { "epoch": 3, "loss": 0.0564, "train_accuracy": 98.40, "elapsed_s": 155.82 },
+        { "epoch": 4, "loss": 0.0518, "train_accuracy": 98.58, "elapsed_s": 125.25 }
+      ]
+    },
+    {
+      "id": "mnist",
+      "name": "Feed-forward classifier",
+      "dataset": "MNIST",
+      "task": "classification",
+      "architecture": "Linear(784→128) → ReLU → Linear(128→10)",
+      "optimiser": "SGD (lr 0.01)",
+      "initial_loss": 2.4407463,
+      "test_accuracy": 97.43,
+      "epochs": [
+        { "epoch": 0, "loss": 0.2634, "train_accuracy": 92.48, "elapsed_s": 41.87 },
+        { "epoch": 1, "loss": 0.1167, "train_accuracy": 96.55, "elapsed_s": 41.96 },
+        { "epoch": 2, "loss": 0.0797, "train_accuracy": 97.66, "elapsed_s": 41.90 },
+        { "epoch": 3, "loss": 0.0594, "train_accuracy": 98.16, "elapsed_s": 41.84 },
+        { "epoch": 4, "loss": 0.0466, "train_accuracy": 98.57, "elapsed_s": 41.93 }
+      ]
+    }
+  ]
+}

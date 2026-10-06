@@ -1,0 +1,12 @@
+{
+  "placeholder": true,
+  "reference": { "framework": "PyTorch (CPU)", "version": "TBD", "threads": 1 },
+  "kernels": [
+    { "id": "matmul/256",      "label": "matmul 256×256", "mentats_ns": 7500000,   "reference_ns": 600000 },
+    { "id": "conv2d/enc2_fwd", "label": "conv2d enc2 fwd", "mentats_ns": 21000000, "reference_ns": 4000000 },
+    { "id": "train_step/batched_cnn_cvae", "label": "CVAE train step", "mentats_ns": 250000000, "reference_ns": 60000000 }
+  ],
+  "models": [
+    { "id": "cnn_mnist", "label": "CNN classifier (MNIST)", "mentats": { "test_accuracy": 97.69, "epoch_s": 133.1 }, "reference": { "test_accuracy": null, "epoch_s": null } }
+  ]
+}

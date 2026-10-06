@@ -1,0 +1,20 @@
+{
+  "placeholder": true,
+  "generated_at": null,
+  "hardware": { "cpu": "TBD", "os": "TBD", "rustc": "TBD", "threads": 1 },
+  "benches": [
+    { "id": "matmul/64",   "group": "matmul", "label": "64×64",   "median_ns": 120000,    "flops": 524288 },
+    { "id": "matmul/128",  "group": "matmul", "label": "128×128", "median_ns": 900000,    "flops": 4194304 },
+    { "id": "matmul/256",  "group": "matmul", "label": "256×256", "median_ns": 7500000,   "flops": 33554432 },
+    { "id": "matmul/512",  "group": "matmul", "label": "512×512", "median_ns": 65000000,  "flops": 268435456 },
+    { "id": "conv2d/enc1_fwd", "group": "conv2d", "label": "enc1 fwd (128×1×28×28 → 16)",  "median_ns": 9000000,  "flops": null },
+    { "id": "conv2d/enc1_bwd", "group": "conv2d", "label": "enc1 bwd",                     "median_ns": 16000000, "flops": null },
+    { "id": "conv2d/enc2_fwd", "group": "conv2d", "label": "enc2 fwd (128×16×13×13 → 32)", "median_ns": 21000000, "flops": null },
+    { "id": "conv2d/enc2_bwd", "group": "conv2d", "label": "enc2 bwd",                     "median_ns": 38000000, "flops": null },
+    { "id": "im2col/enc2",     "group": "layout", "label": "im2col enc2",                  "median_ns": 3000000,  "flops": null },
+    { "id": "col2im/enc2",     "group": "layout", "label": "col2im enc2",                  "median_ns": 3500000,  "flops": null },
+    { "id": "maxpool2d/enc1",  "group": "layout", "label": "maxpool enc1",                 "median_ns": 1200000,  "flops": null },
+    { "id": "upsample2d/dec1", "group": "layout", "label": "upsample dec1",                "median_ns": 800000,   "flops": null },
+    { "id": "train_step/batched_cnn_cvae", "group": "end_to_end", "label": "Batched CNN CVAE train step (batch 128)", "median_ns": 250000000, "flops": null }
+  ]
+}
