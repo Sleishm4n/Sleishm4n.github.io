@@ -59,7 +59,9 @@ const palette = () => [css("--accent"), "#8fb8de", css("--accent-2"), "#9ccf8f",
 // ---------- Hero ----------
 function renderHero({ models, stats, kernels }) {
   const best = models?.models?.reduce((a, m) => (m.test_accuracy > (a?.test_accuracy ?? 0) ? m : a), null);
-  const matmul = kernels?.benches?.filter((b) => b.group === "matmul" && b.flops) ?? [];
+  const matmul = kernels?.benches?.filter(
+    (b) => (b.group.toLowerCase().includes("matmul") || b.group.toLowerCase().includes("multiplication")) && b.flops
+  ) ?? [];
   const peak = matmul.length ? Math.max(...matmul.map((b) => b.flops / b.median_ns)) : null;
   const items = [
     [best ? `${best.test_accuracy.toFixed(2)}%` : "n/a", `${best?.dataset ?? ""} test accuracy`],
@@ -110,17 +112,24 @@ function renderKernels({ kernels }) {
     (kernels.generated_at ? ` · measured ${kernels.generated_at}` : "");
 
   const accent = css("--accent");
-  const matmul = kernels.benches.filter((b) => b.group === "matmul" && b.flops);
+  const matmul = kernels.benches.filter(
+    (b) => (b.group.toLowerCase().includes("matmul") || b.group.toLowerCase().includes("multiplication")) && b.flops
+  );
   new Chart($("#chart-matmul"), {
     type: "bar",
     data: {
       labels: matmul.map((b) => b.label),
-      datasets: [{ label: "GFLOP/s", data: matmul.map((b) => b.flops / b.median_ns), backgroundColor: accent }],
+      datasets: [{ label: "GFLOP/s", data: matmul.map((b) => Number((b.flops / b.median_ns).toFixed(2))), backgroundColor: accent }],
     },
-    options: { plugins: { legend: { display: false } } },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: "GFLOP/s" } } },
+    },
   });
 
-  const layer = kernels.benches.filter((b) => b.group === "conv2d" || b.group === "layout");
+  const layer = kernels.benches.filter(
+    (b) => !b.group.toLowerCase().includes("matmul") && !b.group.toLowerCase().includes("multiplication")
+  );
   new Chart($("#chart-kernels"), {
     type: "bar",
     data: {

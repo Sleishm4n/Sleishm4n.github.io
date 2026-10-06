@@ -80,7 +80,7 @@ def parse_args():
     parser.add_argument(
         "--criterion-dir",
         type=Path,
-        default=Path(__file__).resolve().parent.parent.parent.parent.parent / "mentats" / "target" / "criterion",
+        default=Path(__file__).resolve().parent.parent.parent.parent.parent / "mentats" / "mentats" / "target" / "criterion",
         help="Path to target/criterion directory (default: ../mentats/target/criterion)",
     )
     parser.add_argument(

@@ -124,6 +124,33 @@
         <div class="chart-card"><h3>Layer kernels (ms, median)</h3><canvas id="chart-kernels"></canvas></div>
       </div>
       <div class="table-wrap"><table id="kernel-table"></table></div>
+
+      <!-- Criterion Statistical Plots -->
+      <details class="criterion-details">
+        <summary>View Criterion statistical distribution & violin plots ▾</summary>
+        <div class="criterion-gallery">
+          <figure>
+            <h3>MatMul comparison: violin distribution</h3>
+            <img src="img/criterion/matmul_violin.svg" alt="Criterion violin plot comparing naive vs optimised matmul" loading="lazy">
+            <figcaption>Violin plot of execution time distribution: 256x256 naive (50.94 ms) vs optimised (522 µs)</figcaption>
+          </figure>
+          <figure>
+            <h3>Optimised MatMul: probability density (PDF)</h3>
+            <img src="img/criterion/matmul_optimised_pdf.svg" alt="Criterion PDF plot for optimised matmul" loading="lazy">
+            <figcaption>Kernel density estimate showing bootstrap mean and median confidence intervals</figcaption>
+          </figure>
+          <figure>
+            <h3>Optimised MatMul: iteration vs time regression</h3>
+            <img src="img/criterion/matmul_optimised_regression.svg" alt="Criterion linear regression plot" loading="lazy">
+            <figcaption>Linear fit of iteration counts vs total elapsed duration (slope = time per iteration)</figcaption>
+          </figure>
+          <figure>
+            <h3>Conv2D batched: violin distribution</h3>
+            <img src="img/criterion/conv2d_violin.svg" alt="Criterion violin plot for Conv2D forward vs backward" loading="lazy">
+            <figcaption>Distribution spread for batch 64 Conv2D forward (7.65 ms) and backward (31.23 ms)</figcaption>
+          </figure>
+        </div>
+      </details>
     </section>
 
     <!-- History -->
