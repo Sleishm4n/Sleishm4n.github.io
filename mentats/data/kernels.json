@@ -1,6 +1,6 @@
 {
   "placeholder": false,
-  "generated_at": "2026-10-08 22:05",
+  "generated_at": "2026-10-08 22:40",
   "hardware": {
     "cpu": "Intel(R) Core(TM) Ultra 7 155H",
     "os": "Windows 11",
@@ -8,6 +8,13 @@
     "threads": 22
   },
   "benches": [
+    {
+      "id": "adam_step/adam_100k_params",
+      "group": "adam_step",
+      "label": "adam_100k_params",
+      "median_ns": 333006.22,
+      "flops": null
+    },
     {
       "id": "conv2d/conv_backward_batch64",
       "group": "conv2d",
