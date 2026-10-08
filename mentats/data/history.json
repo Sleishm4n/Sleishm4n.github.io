@@ -64,6 +64,16 @@
         "matmul_256": 448900.0,
         "conv2d_single": 58080.5
       }
+    },
+    {
+      "label": "current",
+      "pr": null,
+      "commit": "HEAD",
+      "title": "Batch-level Rayon parallelism for Conv2D & MatMul with work-size thresholding",
+      "results": {
+        "matmul_256": 395043.98,
+        "conv2d_single": 17426.78
+      }
     }
   ]
 }

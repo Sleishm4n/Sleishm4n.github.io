@@ -56,11 +56,13 @@ def get_hardware_info():
         except Exception:
             pass
 
+    # Rayon uses available parallelism by default
+    cpu_count = os.cpu_count() or 1
     return {
         "cpu": cpu_name,
         "os": f"{platform.system()} {platform.release()}",
         "rustc": get_rustc_version(),
-        "threads": 1,
+        "threads": cpu_count,
     }
 
 

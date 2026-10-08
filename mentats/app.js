@@ -437,7 +437,7 @@ function renderReference({ reference }) {
   const k = reference.kernels;
   const accent = css("--accent");
 
-  let currentMode = "single"; // "single" or "multi"
+  let currentMode = "multi"; // Default to full multi-core comparison
 
   const updateNote = () => {
     const threadCount = currentMode === "single" ? (r.single_threads ?? 1) : (r.multi_threads ?? 16);
@@ -508,8 +508,8 @@ function renderReference({ reference }) {
       labels: k.map((x) => x.label),
       datasets: [{
         label: "% of PyTorch speed",
-        data: getPcts("single"),
-        backgroundColor: getPcts("single").map((pct) => (pct >= 100 ? "#f2b45a" : accent)),
+        data: getPcts("multi"),
+        backgroundColor: getPcts("multi").map((pct) => (pct >= 100 ? "#f2b45a" : accent)),
       }],
     },
     options: {

@@ -1,39 +1,39 @@
 {
   "placeholder": false,
-  "generated_at": "2026-10-08 21:02",
+  "generated_at": "2026-10-08 22:05",
   "hardware": {
     "cpu": "Intel(R) Core(TM) Ultra 7 155H",
     "os": "Windows 11",
     "rustc": "1.93.0",
-    "threads": 1
+    "threads": 22
   },
   "benches": [
     {
       "id": "conv2d/conv_backward_batch64",
       "group": "conv2d",
       "label": "conv_backward_batch64",
-      "median_ns": 21931716.67,
+      "median_ns": 5290605.0,
       "flops": null
     },
     {
       "id": "conv2d/conv_forward_batch64",
       "group": "conv2d",
       "label": "conv_forward_batch64",
-      "median_ns": 5200375.0,
+      "median_ns": 1626891.99,
       "flops": null
     },
     {
       "id": "conv2d_comparison/im2col_gemm_single",
       "group": "conv2d_comparison",
       "label": "im2col_gemm_single",
-      "median_ns": 17426.78,
+      "median_ns": 19008.79,
       "flops": null
     },
     {
       "id": "conv2d_comparison/naive_generic_single",
       "group": "conv2d_comparison",
       "label": "naive_generic_single",
-      "median_ns": 83691.6,
+      "median_ns": 100436.49,
       "flops": null
     },
     {
