@@ -1,6 +1,6 @@
 {
   "placeholder": false,
-  "generated_at": "2026-10-06 23:43",
+  "generated_at": "2026-10-08 11:48",
   "hardware": {
     "cpu": "Intel(R) Core(TM) Ultra 7 155H",
     "os": "Windows 11",
@@ -12,63 +12,63 @@
       "id": "conv2d/conv_backward_batch64",
       "group": "conv2d",
       "label": "conv_backward_batch64",
-      "median_ns": 28087575.0,
+      "median_ns": 21380983.33,
       "flops": null
     },
     {
       "id": "conv2d/conv_forward_batch64",
       "group": "conv2d",
       "label": "conv_forward_batch64",
-      "median_ns": 4940800.0,
+      "median_ns": 5144280.0,
       "flops": null
     },
     {
       "id": "conv2d_comparison/im2col_gemm_single",
       "group": "conv2d_comparison",
       "label": "im2col_gemm_single",
-      "median_ns": 16619.04,
+      "median_ns": 16905.29,
       "flops": null
     },
     {
       "id": "conv2d_comparison/naive_generic_single",
       "group": "conv2d_comparison",
       "label": "naive_generic_single",
-      "median_ns": 91276.15,
+      "median_ns": 90203.39,
       "flops": null
     },
     {
       "id": "matmul_comparison/256x256_naive",
       "group": "matmul_comparison",
       "label": "256x256_naive",
-      "median_ns": 55572050.0,
+      "median_ns": 50041300.0,
       "flops": 33554432
     },
     {
       "id": "matmul_comparison/256x256_optimised",
       "group": "matmul_comparison",
       "label": "256x256_optimised",
-      "median_ns": 1588224.48,
+      "median_ns": 395043.98,
       "flops": 33554432
     },
     {
       "id": "matmul_varing_sizes/128x128_optimised",
       "group": "matmul_varing_sizes",
       "label": "128x128_optimised",
-      "median_ns": 208914.37,
+      "median_ns": 106229.49,
       "flops": 4194304
     },
     {
       "id": "matmul_varing_sizes/512x512_optimised",
       "group": "matmul_varing_sizes",
       "label": "512x512_optimised",
-      "median_ns": 12164612.5,
+      "median_ns": 2612876.32,
       "flops": 268435456
     },
     {
       "id": "matmul_varing_sizes/64x64_optimised",
       "group": "matmul_varing_sizes",
       "label": "64x64_optimised",
-      "median_ns": 25787.73,
+      "median_ns": 26513.16,
       "flops": 524288
     }
   ]

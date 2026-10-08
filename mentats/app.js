@@ -376,11 +376,27 @@ function renderHistory({ history }) {
 function renderReference({ reference }) {
   if (!reference) return;
   const r = reference.reference;
-  $("#reference-note").textContent =
-    `Same shapes, same architectures. ${r.framework} ${r.version} limited to ${r.threads} thread. ` +
-    `100% matches PyTorch's Intel oneDNN/MKL-backed kernels; mentats uses zero external BLAS libraries.`;
   const k = reference.kernels;
   const accent = css("--accent");
+
+  let currentMode = "single"; // "single" or "multi"
+
+  const updateNote = () => {
+    const threadCount = currentMode === "single" ? (r.single_threads ?? 1) : (r.multi_threads ?? 16);
+    $("#reference-note").textContent =
+      `Same shapes, same architectures. PyTorch ${r.version ?? ""} using ${threadCount} thread${threadCount > 1 ? "s" : ""}. ` +
+      `Mentats uses smart thresholding (Rayon on large MatMuls, single-thread auto-vectorization on small/single-image passes) with zero external BLAS.`;
+    $("#reference-chart-title").textContent =
+      `Share of PyTorch ${currentMode === "single" ? "1-thread" : `${r.multi_threads ?? 16}-thread`} speed (%)`;
+  };
+
+  updateNote();
+
+  const getPcts = (mode) =>
+    k.map((x) => {
+      const refTime = mode === "single" ? (x.reference_single_ns ?? x.reference_ns) : (x.reference_multi_ns ?? x.reference_ns);
+      return Number(((refTime / x.mentats_ns) * 100).toFixed(1));
+    });
 
   const parityPlugin = {
     id: "parityPlugin",
@@ -398,14 +414,14 @@ function renderReference({ reference }) {
       ctx.lineTo(x100, bottom);
       ctx.stroke();
 
-      // Top label for parity line with ample padding
+      // Top label for parity line
       ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
       ctx.font = "bold 11px ui-monospace, monospace";
       ctx.textAlign = "center";
       ctx.textBaseline = "bottom";
       ctx.fillText("100% (PyTorch Parity)", x100, top - 6);
 
-      // Labels on bars: inside if long, outside if short
+      // Bar percentage labels
       const meta = chart.getDatasetMeta(0);
       meta.data.forEach((bar, index) => {
         const val = chart.data.datasets[0].data[index];
@@ -415,12 +431,10 @@ function renderReference({ reference }) {
 
         const barWidth = bar.x - bar.base;
         if (barWidth > 140) {
-          // Inside the bar, dark bold text
           ctx.fillStyle = "#111115";
           ctx.textAlign = "right";
           ctx.fillText(text, bar.x - 10, bar.y);
         } else {
-          // Outside the bar, light bold text
           ctx.fillStyle = "#e7e5e0";
           ctx.textAlign = "left";
           ctx.fillText(text, bar.x + 8, bar.y);
@@ -430,48 +444,75 @@ function renderReference({ reference }) {
     },
   };
 
-  new Chart($("#chart-reference"), {
+  const chart = new Chart($("#chart-reference"), {
     type: "bar",
     data: {
       labels: k.map((x) => x.label),
       datasets: [{
         label: "% of PyTorch speed",
-        data: k.map((x) => Number(((x.reference_ns / x.mentats_ns) * 100).toFixed(1))),
-        backgroundColor: k.map((x) => {
-          const pct = (x.reference_ns / x.mentats_ns) * 100;
-          return pct >= 100 ? "#f2b45a" : accent; // highlight >= 100% with gold
-        }),
+        data: getPcts("single"),
+        backgroundColor: getPcts("single").map((pct) => (pct >= 100 ? "#f2b45a" : accent)),
       }],
     },
     options: {
       indexAxis: "y",
       layout: {
-        padding: {
-          top: 30, // Plenty of room for "100% (PyTorch Parity)" title
-          right: 45,
-          left: 10,
-          bottom: 5,
-        },
+        padding: { top: 30, right: 55, left: 10, bottom: 5 },
       },
       scales: {
         x: {
           beginAtZero: true,
-          suggestedMax: 120,
-          title: { display: true, text: "% of Single-Thread PyTorch Performance" },
+          suggestedMax: 150,
+          title: { display: true, text: "% of PyTorch Performance" },
         },
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (c) => ` ${c.parsed.x.toFixed(1)}% of PyTorch single-thread speed`,
-            afterLabel: (c) => ` mentats: ${fmtTime(k[c.dataIndex].mentats_ns)} vs PyTorch: ${fmtTime(k[c.dataIndex].reference_ns)}`,
+            label: (c) => ` ${c.parsed.x.toFixed(1)}% of PyTorch speed`,
+            afterLabel: (c) => {
+              const item = k[c.dataIndex];
+              const refTime = currentMode === "single" ? (item.reference_single_ns ?? item.reference_ns) : (item.reference_multi_ns ?? item.reference_ns);
+              return ` mentats: ${fmtTime(item.mentats_ns)} vs PyTorch (${currentMode}): ${fmtTime(refTime)}`;
+            },
           },
         },
       },
     },
     plugins: [parityPlugin],
   });
+
+  const btnSingle = $("#btn-ref-single");
+  const btnMulti = $("#btn-ref-multi");
+
+  if (btnSingle && btnMulti) {
+    btnSingle.addEventListener("click", () => {
+      currentMode = "single";
+      btnSingle.style.background = "var(--card-bg)";
+      btnSingle.style.color = "var(--text)";
+      btnMulti.style.background = "transparent";
+      btnMulti.style.color = "var(--muted)";
+      updateNote();
+      const pcts = getPcts("single");
+      chart.data.datasets[0].data = pcts;
+      chart.data.datasets[0].backgroundColor = pcts.map((p) => (p >= 100 ? "#f2b45a" : accent));
+      chart.update();
+    });
+
+    btnMulti.addEventListener("click", () => {
+      currentMode = "multi";
+      btnMulti.style.background = "var(--card-bg)";
+      btnMulti.style.color = "var(--text)";
+      btnSingle.style.background = "transparent";
+      btnSingle.style.color = "var(--muted)";
+      updateNote();
+      const pcts = getPcts("multi");
+      chart.data.datasets[0].data = pcts;
+      chart.data.datasets[0].backgroundColor = pcts.map((p) => (p >= 100 ? "#f2b45a" : accent));
+      chart.update();
+    });
+  }
 }
 
 // ---------- Codebase stats ----------

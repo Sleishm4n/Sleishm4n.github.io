@@ -59,8 +59,8 @@ def main():
         print("Error: PyTorch not installed in this Python environment.", file=sys.stderr)
         sys.exit(1)
 
-    torch.set_num_threads(1)
-    print(f"Running PyTorch {torch.__version__} reference benchmarks (threads={torch.get_num_threads()})...\n")
+    max_threads = torch.get_num_threads()
+    print(f"Running PyTorch {torch.__version__} reference benchmarks (max threads={max_threads})...\n")
 
     # Load mentats kernels
     mentats_map = {}
@@ -71,22 +71,18 @@ def main():
                 mentats_map[b["id"]] = b["median_ns"]
                 mentats_map[b["label"]] = b["median_ns"]
 
-    reference_results = []
+    # We will benchmark each op under both threads=1 and threads=max_threads
+    thread_modes = [
+        ("single", 1),
+        ("multi", max_threads),
+    ]
+
+    ops_data = []
 
     # 1. MatMul benchmarks
     matmul_sizes = [64, 128, 256, 512]
     for n in matmul_sizes:
-        a = torch.randn(n, n, dtype=torch.float32)
-        b = torch.randn(n, n, dtype=torch.float32)
-        c = torch.empty(n, n, dtype=torch.float32)
-
-        def run_mm():
-            torch.mm(a, b, out=c)
-
-        med_ns = bench_fn(run_mm, warmup=args.warmup, iters=args.iters)
         label = f"matmul {n}x{n}"
-
-        # Find corresponding mentats median
         candidate_keys = [
             f"{n}x{n}_optimised",
             f"matmul_{n}x{n}",
@@ -98,18 +94,27 @@ def main():
                 mentats_ns = mentats_map[k]
                 break
 
-        print(f"[MatMul {n}x{n}] PyTorch: {med_ns / 1e3:.1f} µs | mentats: {f'{mentats_ns / 1e3:.1f} µs' if mentats_ns else 'N/A'}")
-
-        if mentats_ns:
-            pct = (med_ns / mentats_ns) * 100
-            print(f"  -> mentats throughput relative to PyTorch: {pct:.1f}%")
-
-        reference_results.append({
+        res_entry = {
             "id": f"matmul/{n}",
             "label": label,
-            "reference_ns": round(med_ns, 2),
-            "mentats_ns": mentats_ns or med_ns,
-        })
+            "mentats_ns": mentats_ns,
+        }
+
+        for mode_name, t_count in thread_modes:
+            torch.set_num_threads(t_count)
+            a = torch.randn(n, n, dtype=torch.float32)
+            b = torch.randn(n, n, dtype=torch.float32)
+            c = torch.empty(n, n, dtype=torch.float32)
+
+            def run_mm():
+                torch.mm(a, b, out=c)
+
+            med_ns = bench_fn(run_mm, warmup=args.warmup, iters=args.iters)
+            res_entry[f"reference_{mode_name}_ns"] = round(med_ns, 2)
+            pct = (med_ns / mentats_ns * 100) if mentats_ns else 0
+            print(f"[{label} | {mode_name}-thread ({t_count}T)] PyTorch: {med_ns/1e3:.1f} µs | mentats: {f'{mentats_ns/1e3:.1f} µs' if mentats_ns else 'N/A'} ({pct:.1f}%)")
+
+        ops_data.append(res_entry)
 
     # 2. Conv2D forward & backward (batch 64)
     # Shape: batch 64, 3 in_channels, 32x32 image -> 16 out_channels, 3x3 kernel
@@ -117,77 +122,86 @@ def main():
     conv_layer = torch.nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, bias=False)
     grad_out = torch.randn(64, 16, 30, 30, dtype=torch.float32)
 
-    def run_conv_fwd():
-        with torch.no_grad():
-            conv_layer(x_batch)
-
-    fwd_med_ns = bench_fn(run_conv_fwd, warmup=args.warmup, iters=args.iters)
     mentats_fwd = mentats_map.get("conv_forward_batch64") or mentats_map.get("conv2d/conv_forward_batch64")
-    print(f"\n[Conv2D forward batch64] PyTorch: {fwd_med_ns / 1e6:.2f} ms | mentats: {f'{mentats_fwd / 1e6:.2f} ms' if mentats_fwd else 'N/A'}")
-    if mentats_fwd:
-        pct = (fwd_med_ns / mentats_fwd) * 100
-        print(f"  -> mentats throughput relative to PyTorch: {pct:.1f}%")
-
-    reference_results.append({
+    fwd_entry = {
         "id": "conv2d/conv_forward_batch64",
         "label": "conv2d forward (batch 64)",
-        "reference_ns": round(fwd_med_ns, 2),
-        "mentats_ns": mentats_fwd or fwd_med_ns,
-    })
+        "mentats_ns": mentats_fwd,
+    }
+
+    for mode_name, t_count in thread_modes:
+        torch.set_num_threads(t_count)
+        def run_conv_fwd():
+            with torch.no_grad():
+                conv_layer(x_batch)
+
+        fwd_med_ns = bench_fn(run_conv_fwd, warmup=args.warmup, iters=args.iters)
+        fwd_entry[f"reference_{mode_name}_ns"] = round(fwd_med_ns, 2)
+        pct = (fwd_med_ns / mentats_fwd * 100) if mentats_fwd else 0
+        print(f"\n[conv2d forward (b64) | {mode_name}-thread ({t_count}T)] PyTorch: {fwd_med_ns/1e6:.2f} ms | mentats: {f'{mentats_fwd/1e6:.2f} ms' if mentats_fwd else 'N/A'} ({pct:.1f}%)")
+
+    ops_data.append(fwd_entry)
 
     # Conv2D backward
-    out = conv_layer(x_batch)
-
-    def run_conv_bwd():
-        x_batch.grad = None
-        conv_layer.weight.grad = None
-        out.backward(grad_out, retain_graph=True)
-
-    bwd_med_ns = bench_fn(run_conv_bwd, warmup=15, iters=40)
     mentats_bwd = mentats_map.get("conv_backward_batch64") or mentats_map.get("conv2d/conv_backward_batch64")
-    print(f"\n[Conv2D backward batch64] PyTorch: {bwd_med_ns / 1e6:.2f} ms | mentats: {f'{mentats_bwd / 1e6:.2f} ms' if mentats_bwd else 'N/A'}")
-    if mentats_bwd:
-        pct = (bwd_med_ns / mentats_bwd) * 100
-        print(f"  -> mentats throughput relative to PyTorch: {pct:.1f}%")
-
-    reference_results.append({
+    bwd_entry = {
         "id": "conv2d/conv_backward_batch64",
         "label": "conv2d backward (batch 64)",
-        "reference_ns": round(bwd_med_ns, 2),
-        "mentats_ns": mentats_bwd or bwd_med_ns,
-    })
+        "mentats_ns": mentats_bwd,
+    }
+
+    for mode_name, t_count in thread_modes:
+        torch.set_num_threads(t_count)
+        out = conv_layer(x_batch)
+        def run_conv_bwd():
+            x_batch.grad = None
+            conv_layer.weight.grad = None
+            out.backward(grad_out, retain_graph=True)
+
+        bwd_med_ns = bench_fn(run_conv_bwd, warmup=15, iters=30)
+        bwd_entry[f"reference_{mode_name}_ns"] = round(bwd_med_ns, 2)
+        pct = (bwd_med_ns / mentats_bwd * 100) if mentats_bwd else 0
+        print(f"[conv2d backward (b64) | {mode_name}-thread ({t_count}T)] PyTorch: {bwd_med_ns/1e6:.2f} ms | mentats: {f'{mentats_bwd/1e6:.2f} ms' if mentats_bwd else 'N/A'} ({pct:.1f}%)")
+
+    ops_data.append(bwd_entry)
 
     # 3. Conv2D single image (1 in_channel -> 16 out_channels, 3x3 kernel on 28x28)
     x_single = torch.randn(1, 1, 28, 28, dtype=torch.float32)
     conv_single = torch.nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, bias=False)
 
-    def run_conv_single():
-        with torch.no_grad():
-            conv_single(x_single)
-
-    single_med_ns = bench_fn(run_conv_single, warmup=args.warmup, iters=args.iters)
     mentats_single = mentats_map.get("im2col_gemm_single") or mentats_map.get("conv2d_comparison/im2col_gemm_single")
-    print(f"\n[Conv2D single 28x28] PyTorch: {single_med_ns / 1e3:.1f} µs | mentats: {f'{mentats_single / 1e3:.1f} µs' if mentats_single else 'N/A'}")
-    if mentats_single:
-        pct = (single_med_ns / mentats_single) * 100
-        print(f"  -> mentats throughput relative to PyTorch: {pct:.1f}%")
-
-    reference_results.append({
+    single_entry = {
         "id": "conv2d/single_28x28",
         "label": "conv2d single image (28x28)",
-        "reference_ns": round(single_med_ns, 2),
-        "mentats_ns": mentats_single or single_med_ns,
-    })
+        "mentats_ns": mentats_single,
+    }
 
-    # Prepare reference.json structure
+    for mode_name, t_count in thread_modes:
+        torch.set_num_threads(t_count)
+        def run_conv_single():
+            with torch.no_grad():
+                conv_single(x_single)
+
+        single_med_ns = bench_fn(run_conv_single, warmup=args.warmup, iters=args.iters)
+        single_entry[f"reference_{mode_name}_ns"] = round(single_med_ns, 2)
+        pct = (single_med_ns / mentats_single * 100) if mentats_single else 0
+        print(f"[conv2d single (28x28) | {mode_name}-thread ({t_count}T)] PyTorch: {single_med_ns/1e3:.1f} µs | mentats: {f'{mentats_single/1e3:.1f} µs' if mentats_single else 'N/A'} ({pct:.1f}%)")
+
+    ops_data.append(single_entry)
+
+    # Prepare reference.json structure with backwards-compatible reference_ns (single) + both modes
+    for op in ops_data:
+        op["reference_ns"] = op["reference_single_ns"]
+
     output_data = {
         "placeholder": False,
         "reference": {
             "framework": "PyTorch (CPU)",
             "version": torch.__version__,
-            "threads": 1,
+            "single_threads": 1,
+            "multi_threads": max_threads,
         },
-        "kernels": reference_results,
+        "kernels": ops_data,
         "models": [
             {
                 "id": "cnn_mnist",
@@ -202,7 +216,8 @@ def main():
     with open(args.out_file, "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=2)
 
-    print(f"\nSuccessfully wrote real reference benchmarks to: {args.out_file}")
+    print(f"\nSuccessfully wrote real dual-mode reference benchmarks to: {args.out_file}")
+
 
 
 if __name__ == "__main__":
