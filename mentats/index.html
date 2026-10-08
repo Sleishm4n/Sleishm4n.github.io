@@ -131,15 +131,16 @@
     <section id="kernels">
       <h2><span class="num">04</span> Kernel benchmarks <span class="badge" data-src="kernels"></span></h2>
       <p class="muted" id="hardware"></p>
-      <div class="grid-2">
-        <div class="chart-card"><h3>matmul throughput (GFLOP/s)</h3><canvas id="chart-matmul"></canvas></div>
+      <div class="grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="chart-card"><h3>2D matmul throughput (GFLOP/s)</h3><canvas id="chart-matmul"></canvas></div>
+        <div class="chart-card"><h3>Batched matmul throughput (GFLOP/s)</h3><canvas id="chart-matmul-batched"></canvas></div>
         <div class="chart-card"><h3>Layer kernels (ms, median)</h3><canvas id="chart-kernels"></canvas></div>
       </div>
       <div class="table-wrap"><table id="kernel-table"></table></div>
 
       <!-- Criterion Statistical Plots -->
       <details class="criterion-details">
-        <summary>View Criterion statistical distribution & violin plots ▾</summary>
+        <summary>View Criterion statistical distribution & violin plots</summary>
         <div class="criterion-gallery">
           <figure>
             <h3>MatMul comparison: violin distribution</h3>

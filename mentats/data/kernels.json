@@ -1,6 +1,6 @@
 {
   "placeholder": false,
-  "generated_at": "2026-10-08 11:48",
+  "generated_at": "2026-10-08 21:02",
   "hardware": {
     "cpu": "Intel(R) Core(TM) Ultra 7 155H",
     "os": "Windows 11",
@@ -12,63 +12,140 @@
       "id": "conv2d/conv_backward_batch64",
       "group": "conv2d",
       "label": "conv_backward_batch64",
-      "median_ns": 21380983.33,
+      "median_ns": 21931716.67,
       "flops": null
     },
     {
       "id": "conv2d/conv_forward_batch64",
       "group": "conv2d",
       "label": "conv_forward_batch64",
-      "median_ns": 5144280.0,
+      "median_ns": 5200375.0,
       "flops": null
     },
     {
       "id": "conv2d_comparison/im2col_gemm_single",
       "group": "conv2d_comparison",
       "label": "im2col_gemm_single",
-      "median_ns": 16905.29,
+      "median_ns": 17426.78,
       "flops": null
     },
     {
       "id": "conv2d_comparison/naive_generic_single",
       "group": "conv2d_comparison",
       "label": "naive_generic_single",
-      "median_ns": 90203.39,
+      "median_ns": 83691.6,
       "flops": null
+    },
+    {
+      "id": "matmul_batched_comp/batched",
+      "group": "matmul_batched_comp",
+      "label": "batched",
+      "median_ns": 319551.13,
+      "flops": null
+    },
+    {
+      "id": "matmul_batched_comp/serialised",
+      "group": "matmul_batched_comp",
+      "label": "serialised",
+      "median_ns": 887260.67,
+      "flops": null
+    },
+    {
+      "id": "matmul_batched_sizes/b16_64x64_batched",
+      "group": "matmul_batched_sizes",
+      "label": "b16_64x64_batched",
+      "median_ns": 401279.69,
+      "flops": 8388608
+    },
+    {
+      "id": "matmul_batched_sizes/b16_64x64_broadcast",
+      "group": "matmul_batched_sizes",
+      "label": "b16_64x64_broadcast",
+      "median_ns": 387257.59,
+      "flops": 8388608
+    },
+    {
+      "id": "matmul_batched_sizes/b64_128x128_batched",
+      "group": "matmul_batched_sizes",
+      "label": "b64_128x128_batched",
+      "median_ns": 5683783.33,
+      "flops": 268435456
+    },
+    {
+      "id": "matmul_batched_sizes/b64_128x128_broadcast",
+      "group": "matmul_batched_sizes",
+      "label": "b64_128x128_broadcast",
+      "median_ns": 6213994.44,
+      "flops": 268435456
+    },
+    {
+      "id": "matmul_batched_sizes/b64_64x64_batched",
+      "group": "matmul_batched_sizes",
+      "label": "b64_64x64_batched",
+      "median_ns": 1256936.08,
+      "flops": 33554432
+    },
+    {
+      "id": "matmul_batched_sizes/b64_64x64_broadcast",
+      "group": "matmul_batched_sizes",
+      "label": "b64_64x64_broadcast",
+      "median_ns": 1177994.12,
+      "flops": 33554432
     },
     {
       "id": "matmul_comparison/256x256_naive",
       "group": "matmul_comparison",
       "label": "256x256_naive",
-      "median_ns": 50041300.0,
+      "median_ns": 51426250.0,
       "flops": 33554432
     },
     {
       "id": "matmul_comparison/256x256_optimised",
       "group": "matmul_comparison",
       "label": "256x256_optimised",
-      "median_ns": 395043.98,
+      "median_ns": 845319.71,
       "flops": 33554432
     },
     {
       "id": "matmul_varing_sizes/128x128_optimised",
       "group": "matmul_varing_sizes",
       "label": "128x128_optimised",
-      "median_ns": 106229.49,
+      "median_ns": 109936.55,
       "flops": 4194304
     },
     {
       "id": "matmul_varing_sizes/512x512_optimised",
       "group": "matmul_varing_sizes",
       "label": "512x512_optimised",
-      "median_ns": 2612876.32,
+      "median_ns": 2688410.0,
       "flops": 268435456
     },
     {
       "id": "matmul_varing_sizes/64x64_optimised",
       "group": "matmul_varing_sizes",
       "label": "64x64_optimised",
-      "median_ns": 26513.16,
+      "median_ns": 24244.45,
+      "flops": 524288
+    },
+    {
+      "id": "matmul_varying_sizes/128x128_optimised",
+      "group": "matmul_varying_sizes",
+      "label": "128x128_optimised",
+      "median_ns": 176309.33,
+      "flops": 4194304
+    },
+    {
+      "id": "matmul_varying_sizes/512x512_optimised",
+      "group": "matmul_varying_sizes",
+      "label": "512x512_optimised",
+      "median_ns": 4506615.45,
+      "flops": 268435456
+    },
+    {
+      "id": "matmul_varying_sizes/64x64_optimised",
+      "group": "matmul_varying_sizes",
+      "label": "64x64_optimised",
+      "median_ns": 27031.33,
       "flops": 524288
     }
   ]

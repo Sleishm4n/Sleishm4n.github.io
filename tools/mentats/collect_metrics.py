@@ -12,21 +12,29 @@ import os
 import sys
 from pathlib import Path
 
+
 def parse_args():
-    parser = argparse.ArgumentParser(description="Aggregate mentats training metrics into models.json")
+    parser = argparse.ArgumentParser(
+        description="Aggregate mentats training metrics into models.json"
+    )
     parser.add_argument(
         "--mentats-dir",
         type=Path,
-        default=Path(__file__).resolve().parent.parent.parent.parent.parent / "mentats/mentats",
+        default=Path(__file__).resolve().parent.parent.parent.parent.parent
+        / "mentats/mentats",
         help="Path to the mentats repository (default: ../mentats)",
     )
     parser.add_argument(
         "--out-file",
         type=Path,
-        default=Path(__file__).resolve().parent.parent.parent / "mentats" / "data" / "models.json",
+        default=Path(__file__).resolve().parent.parent.parent
+        / "mentats"
+        / "data"
+        / "models.json",
         help="Path to output models.json (default: mentats/data/models.json)",
     )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
@@ -79,7 +87,10 @@ def main():
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
 
-    print(f"Successfully updated {out_file} with {len(merged_models)} models ({found_count} new/updated).")
+    print(
+        f"Successfully updated {out_file} with {len(merged_models)} models ({found_count} new/updated)."
+    )
+
 
 if __name__ == "__main__":
     main()

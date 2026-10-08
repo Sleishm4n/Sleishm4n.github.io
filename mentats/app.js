@@ -224,12 +224,19 @@ function renderKernels({ kernels }) {
     (kernels.generated_at ? ` · measured ${kernels.generated_at}` : "");
 
   const accent = css("--accent");
-  const matmul = kernels.benches.filter(
-    (b) => (b.group.toLowerCase().includes("matmul") || b.group.toLowerCase().includes("multiplication")) && b.flops
-  );
 
-  // Sort by matrix dimension: 64 -> 128 -> 256 -> 512, keeping naive right before optimised
-  matmul.sort((a, b) => {
+  // Filter 2D matmuls (deduplicate old group names like matmul_varing_sizes if newer varying_sizes exists)
+  const hasVarying = kernels.benches.some((b) => b.group === "matmul_varying_sizes");
+  const matmul2d = kernels.benches.filter((b) => {
+    if (!b.flops) return false;
+    if (b.group === "matmul_batched_sizes" || b.group === "matmul_batched_comp") return false;
+    if (b.label.startsWith("b16_") || b.label.startsWith("b64_") || b.label === "batched" || b.label === "serialised") return false;
+    if (hasVarying && b.group === "matmul_varing_sizes") return false;
+    return b.group.toLowerCase().includes("matmul") || b.group.toLowerCase().includes("multiplication");
+  });
+
+  // Sort 2D by matrix dimension: 64 -> 128 -> 256 -> 512, keeping naive right before optimised
+  matmul2d.sort((a, b) => {
     const sizeA = parseInt(a.label.match(/\d+/)?.[0] || "0", 10);
     const sizeB = parseInt(b.label.match(/\d+/)?.[0] || "0", 10);
     if (sizeA !== sizeB) return sizeA - sizeB;
@@ -238,16 +245,16 @@ function renderKernels({ kernels }) {
     return 0;
   });
 
-  const matmulColors = matmul.map((b) => (b.label.includes("naive") ? "#6e6a66" : accent));
+  const matmul2dColors = matmul2d.map((b) => (b.label.includes("naive") ? "#6e6a66" : accent));
 
   new Chart($("#chart-matmul"), {
     type: "bar",
     data: {
-      labels: matmul.map((b) => b.label),
+      labels: matmul2d.map((b) => b.label),
       datasets: [{
         label: "GFLOP/s",
-        data: matmul.map((b) => Number((b.flops / b.median_ns).toFixed(2))),
-        backgroundColor: matmulColors,
+        data: matmul2d.map((b) => Number((b.flops / b.median_ns).toFixed(2))),
+        backgroundColor: matmul2dColors,
       }],
     },
     options: {
@@ -256,7 +263,7 @@ function renderKernels({ kernels }) {
         tooltip: {
           callbacks: {
             afterLabel: (ctx) => {
-              const item = matmul[ctx.dataIndex];
+              const item = matmul2d[ctx.dataIndex];
               return `Median: ${fmtTime(item.median_ns)}`;
             },
           },
@@ -265,6 +272,57 @@ function renderKernels({ kernels }) {
       scales: { y: { beginAtZero: true, title: { display: true, text: "GFLOP/s" } } },
     },
   });
+
+  // Batched matmuls: b16, b64 configs
+  const matmulBatched = kernels.benches.filter(
+    (b) => b.group === "matmul_batched_sizes" && b.flops
+  );
+
+  // Sort by batch then size then batched/broadcast
+  matmulBatched.sort((a, b) => {
+    const parse = (lbl) => {
+      const m = lbl.match(/b(\d+)_(\d+)x(\d+)_?(.*)/);
+      return m ? { b: parseInt(m[1]), s: parseInt(m[2]), type: m[4] } : { b: 0, s: 0, type: "" };
+    };
+    const pa = parse(a.label);
+    const pb = parse(b.label);
+    if (pa.b !== pb.b) return pa.b - pb.b;
+    if (pa.s !== pb.s) return pa.s - pb.s;
+    return pa.type.localeCompare(pb.type);
+  });
+
+  const batchedColors = matmulBatched.map((b) =>
+    b.label.includes("broadcast") ? "#8fb8de" : accent
+  );
+
+  const batchedCanvas = $("#chart-matmul-batched");
+  if (batchedCanvas) {
+    new Chart(batchedCanvas, {
+      type: "bar",
+      data: {
+        labels: matmulBatched.map((b) => b.label),
+        datasets: [{
+          label: "GFLOP/s",
+          data: matmulBatched.map((b) => Number((b.flops / b.median_ns).toFixed(2))),
+          backgroundColor: batchedColors,
+        }],
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                const item = matmulBatched[ctx.dataIndex];
+                return `Median: ${fmtTime(item.median_ns)}`;
+              },
+            },
+          },
+        },
+        scales: { y: { beginAtZero: true, title: { display: true, text: "GFLOP/s" } } },
+      },
+    });
+  }
 
   const layer = kernels.benches.filter(
     (b) => !b.group.toLowerCase().includes("matmul") && !b.group.toLowerCase().includes("multiplication")

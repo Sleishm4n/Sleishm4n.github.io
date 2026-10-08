@@ -26,14 +26,23 @@ def get_hardware_info():
         # Often friendly name is available in registry, fall back to cpu_name
         try:
             import winreg
-            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+            )
             cpu_name = winreg.QueryValueEx(key, "ProcessorNameString")[0].strip()
         except Exception:
             pass
     elif sys.platform == "darwin":
         import subprocess
+
         try:
-            cpu_name = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"]).decode().strip()
+            cpu_name = (
+                subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"])
+                .decode()
+                .strip()
+            )
         except Exception:
             cpu_name = cpu_info
     else:  # Linux
@@ -57,6 +66,7 @@ def get_hardware_info():
 
 def get_rustc_version():
     import subprocess
+
     try:
         out = subprocess.check_output(["rustc", "--version"]).decode().strip()
         return out.split(" ")[1]
@@ -66,27 +76,47 @@ def get_rustc_version():
 
 def estimate_flops(group: str, label: str):
     """Calculates floating point ops for common kernels if determinable from label."""
-    # Matmul NxN: 2 * N^3 FLOPs
+    # Batched Matmul: b{batch}_{N}x{N} -> 2 * batch * N^3 FLOPs
+    batched_match = re.search(r"b(\d+)_(\d+)x(\d+)", label)
+
+    if batched_match:
+        batch = int(batched_match.group(1))
+        m = int(batched_match.group(2))
+        p = int(batched_match.group(3))
+        # Assuming square inner dim n = m
+        return 2 * batch * (m**3)
+    
+    # 2D Matmul NxN: 2 * N^3 FLOPs
     if "matmul" in group.lower() or "matmul" in label.lower():
         match = re.search(r"(\d+)(?:x|×)?(?:\1)?", label)
         if match:
             n = int(match.group(1))
-            return 2 * (n ** 3)
+            return 2 * (n**3)
+    
     return None
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Convert Criterion estimates.json into kernels.json")
+    parser = argparse.ArgumentParser(
+        description="Convert Criterion estimates.json into kernels.json"
+    )
     parser.add_argument(
         "--criterion-dir",
         type=Path,
-        default=Path(__file__).resolve().parent.parent.parent.parent.parent / "mentats" / "mentats" / "target" / "criterion",
+        default=Path(__file__).resolve().parent.parent.parent.parent.parent
+        / "mentats"
+        / "mentats"
+        / "target"
+        / "criterion",
         help="Path to target/criterion directory (default: ../mentats/target/criterion)",
     )
     parser.add_argument(
         "--out-file",
         type=Path,
-        default=Path(__file__).resolve().parent.parent.parent / "mentats" / "data" / "kernels.json",
+        default=Path(__file__).resolve().parent.parent.parent
+        / "mentats"
+        / "data"
+        / "kernels.json",
         help="Path to output kernels.json (default: mentats/data/kernels.json)",
     )
     return parser.parse_args()
@@ -139,14 +169,19 @@ def main():
 
             if median_ns is not None:
                 flops = estimate_flops(group, label)
-                benches.append({
-                    "id": bench_id,
-                    "group": group,
-                    "label": label,
-                    "median_ns": round(median_ns, 2),
-                    "flops": flops,
-                })
-                print(f"  [+] {bench_id}: {median_ns / 1e6:.3f} ms" + (f" ({flops / median_ns:.2f} GFLOP/s)" if flops else ""))
+                benches.append(
+                    {
+                        "id": bench_id,
+                        "group": group,
+                        "label": label,
+                        "median_ns": round(median_ns, 2),
+                        "flops": flops,
+                    }
+                )
+                print(
+                    f"  [+] {bench_id}: {median_ns / 1e6:.3f} ms"
+                    + (f" ({flops / median_ns:.2f} GFLOP/s)" if flops else "")
+                )
         except Exception as e:
             print(f"Warning: could not parse {est_path}: {e}", file=sys.stderr)
 

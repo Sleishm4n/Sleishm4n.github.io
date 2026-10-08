@@ -10,58 +10,82 @@
     {
       "id": "matmul/64",
       "label": "matmul 64x64",
-      "mentats_ns": 26513.16,
-      "reference_single_ns": 10000.0,
-      "reference_multi_ns": 34550.0,
-      "reference_ns": 10000.0
+      "mentats_ns": 27031.33,
+      "reference_single_ns": 5800.0,
+      "reference_multi_ns": 16100.0,
+      "reference_ns": 5800.0
     },
     {
       "id": "matmul/128",
       "label": "matmul 128x128",
-      "mentats_ns": 106229.49,
-      "reference_single_ns": 72000.0,
-      "reference_multi_ns": 44800.0,
-      "reference_ns": 72000.0
+      "mentats_ns": 176309.33,
+      "reference_single_ns": 41300.0,
+      "reference_multi_ns": 14250.0,
+      "reference_ns": 41300.0
     },
     {
       "id": "matmul/256",
       "label": "matmul 256x256",
-      "mentats_ns": 395043.98,
-      "reference_single_ns": 531200.0,
-      "reference_multi_ns": 275600.0,
-      "reference_ns": 531200.0
+      "mentats_ns": 845319.71,
+      "reference_single_ns": 384000.0,
+      "reference_multi_ns": 69100.0,
+      "reference_ns": 384000.0
     },
     {
       "id": "matmul/512",
       "label": "matmul 512x512",
-      "mentats_ns": 2612876.32,
-      "reference_single_ns": 4126850.0,
-      "reference_multi_ns": 1125300.0,
-      "reference_ns": 4126850.0
+      "mentats_ns": 4506615.45,
+      "reference_single_ns": 2750250.0,
+      "reference_multi_ns": 553850.0,
+      "reference_ns": 2750250.0
+    },
+    {
+      "id": "matmul_batched/b16_64x64",
+      "label": "batched matmul (b16, 64x64)",
+      "mentats_ns": 401279.69,
+      "reference_single_ns": 76200.0,
+      "reference_multi_ns": 22600.0,
+      "reference_ns": 76200.0
+    },
+    {
+      "id": "matmul_batched/b64_64x64",
+      "label": "batched matmul (b64, 64x64)",
+      "mentats_ns": 1256936.08,
+      "reference_single_ns": 374600.0,
+      "reference_multi_ns": 80300.0,
+      "reference_ns": 374600.0
+    },
+    {
+      "id": "matmul_batched/b64_128x128",
+      "label": "batched matmul (b64, 128x128)",
+      "mentats_ns": 5683783.33,
+      "reference_single_ns": 4745000.0,
+      "reference_multi_ns": 928900.0,
+      "reference_ns": 4745000.0
     },
     {
       "id": "conv2d/conv_forward_batch64",
       "label": "conv2d forward (batch 64)",
-      "mentats_ns": 5144280.0,
-      "reference_single_ns": 1984450.0,
-      "reference_multi_ns": 2116150.0,
-      "reference_ns": 1984450.0
+      "mentats_ns": 5200375.0,
+      "reference_single_ns": 1946050.0,
+      "reference_multi_ns": 642550.0,
+      "reference_ns": 1946050.0
     },
     {
       "id": "conv2d/conv_backward_batch64",
       "label": "conv2d backward (batch 64)",
-      "mentats_ns": 21380983.33,
-      "reference_single_ns": 5808500.0,
-      "reference_multi_ns": 10539450.0,
-      "reference_ns": 5808500.0
+      "mentats_ns": 21931716.67,
+      "reference_single_ns": 6082050.0,
+      "reference_multi_ns": 1944150.0,
+      "reference_ns": 6082050.0
     },
     {
       "id": "conv2d/single_28x28",
       "label": "conv2d single image (28x28)",
-      "mentats_ns": 16905.29,
-      "reference_single_ns": 45150.0,
-      "reference_multi_ns": 73650.0,
-      "reference_ns": 45150.0
+      "mentats_ns": 17426.78,
+      "reference_single_ns": 64700.0,
+      "reference_multi_ns": 38800.0,
+      "reference_ns": 64700.0
     }
   ],
   "models": [
